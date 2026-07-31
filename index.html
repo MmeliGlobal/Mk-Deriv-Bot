@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mmeli_FX · Deriv Bot Pro</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="bot-card">
+        <!-- Header -->
+        <div class="header">
+            <div class="brand">
+                <h1>Mmeli_FX</h1>
+                <small>Deriv Bot</small>
+            </div>
+            <div class="status-pill">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="connectionLabel">disconnected</span>
+            </div>
+        </div>
+
+        <!-- Token Row -->
+        <div class="token-row">
+            <input type="text" id="tokenInput" placeholder="Paste your Deriv token..." value="" autocomplete="off" />
+            <button class="connect-btn" id="connectBtn">🔗 Connect</button>
+        </div>
+
+        <!-- Balance & Tick -->
+        <div class="info-grid">
+            <div class="balance-box">
+                <span>💰 Balance</span>
+                <span id="balanceDisplay">—</span>
+            </div>
+            <div class="ticker-badge">
+                <span>📈 Tick</span>
+                <strong id="tickValue">—</strong>
+            </div>
+        </div>
+
+        <!-- Strategy Selector -->
+        <div class="strategy-panel">
+            <button class="strategy-btn active" data-strategy="evenodd">
+                <span>🎯</span> Even / Odd
+            </button>
+            <button class="strategy-btn" data-strategy="overunder">
+                <span>📊</span> Over / Under
+            </button>
+        </div>
+
+        <!-- Trade Status -->
+        <div class="trade-status-bar">
+            <span class="label">⚡ Last Trade</span>
+            <span class="value" id="tradeStatus">Waiting for tick...</span>
+        </div>
+
+        <!-- History -->
+        <div class="history-header">
+            <h3>📋 Win / Loss History</h3>
+            <div>
+                <span id="tradeCount" class="trade-count">0 trades</span>
+                <button class="clear-btn" id="clearHistoryBtn">Clear All</button>
+            </div>
+        </div>
+        <div class="history-box" id="historyContainer">
+            <div class="empty-history">No trades yet</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer-meta">
+            <span>🔌 WebSocket Port 1995</span>
+            <span id="sessionStatus">● Ready</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
