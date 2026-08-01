@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deriv Bot · Mmeli_FX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0b0e1a 0%, #141b2b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .card {
+            max-width: 720px;
+            width: 100%;
+            background: rgba(22, 28, 46, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 42px;
+            padding: 2rem 1.8rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: #f0f3fd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.25rem;
+        }
+
+        .subhead {
+            color: #8e9acf;
+            font-size: 0.9rem;
+            font-weight: 400;
+            margin-bottom: 1.8rem;
+            border-left: 3px solid #3b4b8a;
+            padding-left: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .server-status {
+            background: #10182b;
+            border-radius: 30px;
+            padding: 0.4rem 1rem;
+            font-size: 0.7rem;
+            color: #7b8ec9;
+            border: 1px solid #1a2647;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .server-status.online {
+            color: #2ecc71;
+            border-color: #2ecc71;
+        }
+
+        .server-status.offline {
+            color: #e74c6f;
+            border-color: #e74c6f;
+        }
+
+        .token-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            align-items: center;
+            background: #1a2238;
+            padding: 0.9rem 1.2rem;
+            border-radius: 48px;
+            border: 1px solid #2c3a5e;
+        }
+
+        .token-section label {
+            color: #b9c6f0;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .token-section label i {
+            color: #5d7ddb;
+        }
+
+        .token-input {
+            flex: 1;
+            min-width: 170px;
+            background: #0e1426;
+            border: 1px solid #2f3d66;
+            border-radius: 40px;
+            padding: 0.7rem 1.2rem;
+            color: #eef3ff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .token-input:focus {
+            border-color: #6b8aff;
+            box-shadow: 0 0 0 3px rgba(78, 116, 255, 0.2);
+        }
+
+        .btn-connect {
+            background: #2f4bcf;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(47, 75, 207, 0.3);
+            border: 1px solid #4b6ae0;
+        }
+
+        .btn-connect:hover {
+            background: #3f5de0;
+            transform: scale(1.02);
+            box-shadow: 0 6px 16px rgba(47, 75, 207, 0.5);
+        }
+
+        .btn-connect:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.3);
+        }
+
+        .balance-box {
+            background: #10182b;
+            border-radius: 40px;
+            padding: 0.6rem 1.5rem;
+            font-size: 0.95rem;
+            color: #b3c2f0;
+            border: 1px solid #293a5a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 1.8rem;
+            justify-content: space-between;
+        }
+
+        .balance-amount {
+            font-weight: 600;
+            color: #d6e2ff;
+            background: #1d2845;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            font-size: 1rem;
+        }
+
+        .trade-type-selector {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+        }
+
+        .type-btn {
+            flex: 1;
+            min-width: 100px;
+            background: #1a233e;
+            border: 2px solid #2b3a60;
+            padding: 0.9rem 0.5rem;
+            border-radius: 60px;
+            font-weight: 600;
+            color: #9aacdf;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .type-btn i {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .type-btn.active {
+            background: #2a3f85;
+            border-color: #6b8aff;
+            color: white;
+            box-shadow: 0 0 16px rgba(70, 120, 255, 0.3);
+        }
+
+        .type-btn.active i {
+            opacity: 1;
+        }
+
+        .type-btn:hover:not(.active) {
+            background: #222f55;
+            border-color: #4a62a0;
+            color: #ccd8ff;
+        }
+
+        .exec-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #1e8b4c, #0f6b34);
+            border: none;
+            padding: 1rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+            letter-spacing: 0.3px;
+            margin: 0.5rem 0 1.5rem 0;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 6px 14px rgba(25, 135, 84, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .exec-btn:hover:not(:disabled) {
+            background: linear-gradient(145deg, #26a35a, #14803e);
+            transform: scale(1.01);
+            box-shadow: 0 8px 20px rgba(25, 135, 84, 0.5);
+        }
+
+        .exec-btn:disabled {
+            opacity: 0.35;
+            filter: grayscale(0.4);
+            cursor: not-allowed;
+        }
+
+        .history-panel {
+            background: #0e162b;
+            border-radius: 32px;
+            padding: 1.2rem 1.2rem 0.8rem 1.2rem;
+            border: 1px solid #26335a;
+            margin-top: 0.8rem;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            color: #8699d0;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1f2c4e;
+            margin-bottom: 10px;
+        }
+
+        #historyList {
+            max-height: 190px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+
+        #historyList::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #historyList::-webkit-scrollbar-track {
+            background: #141d36;
+            border-radius: 10px;
+        }
+
+        #historyList::-webkit-scrollbar-thumb {
+            background: #3f559b;
+            border-radius: 10px;
+        }
+
+        .history-item {
+            background: #131d36;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            border-left: 4px solid #3a4f8a;
+        }
+
+        .history-item.win {
+            border-left-color: #2ecc71;
+            background: #112a22;
+        }
+
+        .history-item.loss {
+            border-left-color: #e74c6f;
+            background: #2a1620;
+        }
+
+        .history-item .type-badge {
+            background: #222f55;
+            padding: 0.1rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #b3c6ff;
+        }
+
+        .history-item .result-badge {
+            font-weight: 700;
+            padding: 0.1rem 0.9rem;
+            border-radius: 30px;
+        }
+
+        .history-item .result-badge.win {
+            background: #1f8b4c;
+            color: #d0ffdc;
+        }
+
+        .history-item .result-badge.loss {
+            background: #a13a4f;
+            color: #ffd6dd;
+        }
+
+        .tick-info {
+            color: #7b8ec9;
+            font-size: 0.7rem;
+            display: flex;
+            gap: 14px;
+            margin-top: 10px;
+            justify-content: flex-end;
+            border-top: 1px solid #1b2647;
+            padding-top: 10px;
+        }
+
+        .status-badge {
+            background: #1f2b4e;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            color: #b3c6ff;
+            font-size: 0.7rem;
+        }
+
+        .fas.fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 500px) {
+            .card { padding: 1.5rem 1rem; }
+            .token-section { flex-direction: column; align-items: stretch; }
+            .btn-connect { justify-content: center; }
+        }
+        
+        .error-message {
+            background: #2a1620;
+            color: #ff6b8a;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            display: none;
+            border: 1px solid #a13a4f;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .debug-info {
+            background: #0a0f1e;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #6b7ea8;
+            margin-top: 0.5rem;
+            font-family: monospace;
+            max-height: 100px;
+            overflow-y: auto;
+            border: 1px solid #1a2647;
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="app">
+        <h1><i class="fas fa-robot" style="color: #6b8aff;"></i> Mmeli_FX · Bot</h1>
+        <div class="subhead"><i class="fas fa-circle" style="color: #3b8b5e; font-size: 0.5rem; margin-right: 8px;"></i> even/odd · over/under · live ticks</div>
+
+        <!-- Server Status -->
+        <div id="serverStatus" class="server-status offline">
+            <i class="fas fa-circle"></i> Server: Connecting...
+        </div>
+
+        <!-- Error message display -->
+        <div id="errorMessage" class="error-message"></div>
+
+        <!-- Token & Connect -->
+        <div class="token-section">
+            <label for="tokenInput"><i class="fas fa-key"></i> Token</label>
+            <input type="password" id="tokenInput" class="token-input" placeholder="Enter your Deriv token (starts with pat_)">
+            <button id="connectBtn" class="btn-connect"><i class="fas fa-link"></i> Connect</button>
+        </div>
+
+        <!-- Balance display -->
+        <div class="balance-box">
+            <span><i class="fas fa-wallet" style="color: #5d7ddb;"></i> Balance</span>
+            <span class="balance-amount" id="balanceDisplay">—</span>
+        </div>
+
+        <!-- Even/Odd & Over/Under selector -->
+        <div class="trade-type-selector">
+            <button id="typeEvenOdd" class="type-btn active"><i class="fas fa-divide"></i> Even / Odd</button>
+            <button id="typeOverUnder" class="type-btn"><i class="fas fa-arrow-up"></i> Over / Under</button>
+        </div>
+
+        <!-- Execute bot button -->
+        <button id="execBtn" class="exec-btn" disabled><i class="fas fa-play"></i> Start bot (tick)</button>
+
+        <!-- Debug info -->
+        <div id="debugInfo" class="debug-info">Ready to connect...</div>
+
+        <!-- History panel -->
+        <div class="history-panel">
+            <div class="history-header">
+                <span><i class="fas fa-clock"></i> Last trades</span>
+                <span id="tradeCounter">0 trades</span>
+            </div>
+            <div id="historyList">
+                <div style="color: #4f6297; text-align: center; padding: 14px 0; font-size: 0.8rem;">connect & start to see history</div>
+            </div>
+            <div class="tick-info">
+                <span id="tickStatus" class="status-badge"><i class="fas fa-pause"></i> idle</span>
+                <span><i class="fas fa-sync-alt fa-fw"></i> tick #<span id="tickCounter">0</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // ===== CONFIGURATION =====
+            // CHANGE THIS URL TO YOUR BACKEND SERVER URL
+            const BACKEND_URL = 'http://localhost:3000';
+            // If you deploy to Render/Railway/Heroku, change to:
+            // const BACKEND_URL = 'https://your-app-name.onrender.com';
+            
+            const APP_ID = '33Zq0S246i4BC9ybK02cl';
+
+            // ===== DOM REFS =====
+            const tokenInput = document.getElementById('tokenInput');
+            const connectBtn = document.getElementById('connectBtn');
+            const balanceDisplay = document.getElementById('balanceDisplay');
+            const execBtn = document.getElementById('execBtn');
+            const historyList = document.getElementById('historyList');
+            const tradeCounter = document.getElementById('tradeCounter');
+            const tickStatus = document.getElementById('tickStatus');
+            const tickCounterSpan = document.getElementById('tickCounter');
+            const errorMessage = document.getElementById('errorMessage');
+            const debugInfo = document.getElementById('debugInfo');
+            const serverStatus = document.getElementById('serverStatus');
+
+            const typeEvenOdd = document.getElementById('typeEvenOdd');
+            const typeOverUnder = document.getElementById('typeOverUnder');
+
+            // ===== STATE =====
+            let derivToken = '';
+            let isConnected = false;
+            let balance = null;
+            let activeTradeType = 'evenodd';
+            let isBotRunning = false;
+            let botInterval = null;
+            let tickCount = 0;
+            let tradeHistory = [];
+
+            // ===== UI HELPERS =====
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 10000);
+            }
+
+            function debugLog(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                debugInfo.innerHTML = `[${timestamp}] ${message}<br>` + debugInfo.innerHTML;
+                if (debugInfo.children.length > 10) {
+                    debugInfo.removeChild(debugInfo.lastChild);
+                }
+                console.log(message);
+            }
+
+            function updateServerStatus(status, message) {
+                serverStatus.className = `server-status ${status}`;
+                serverStatus.innerHTML = `<i class="fas fa-circle"></i> ${message}`;
+            }
+
+            // ===== API CALLS =====
+            async function apiCall(action, data = {}) {
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/${action}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            token: derivToken,
+                            app_id: APP_ID,
+                            data: data
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    if (result.error) {
+                        throw new Error(result.error.message || JSON.stringify(result.error));
+                    }
+
+                    return result;
+                } catch (error) {
+                    debugLog(`API Error: ${error.message}`);
+                    throw error;
+                }
+            }
+
+            // ===== CHECK SERVER =====
+            async function checkServer() {
+                try {
+                    const response = await fetch(BACKEND_URL);
+                    if (response.ok) {
+                        updateServerStatus('online', 'Server: Online ✓');
+                        debugLog('Backend server is online');
+                        return true;
+                    }
+                } catch (error) {
+                    updateServerStatus('offline', 'Server: Offline ✗');
+                    debugLog('Backend server is offline');
+                    return false;
+                }
+            }
+
+            // ===== DERIV FUNCTIONS =====
+            async function fetchBalance() {
+                try {
+                    const result = await apiCall('balance', { balance: 1 });
+                    if (result && result.balance) {
+                        balance = result.balance.balance || 0;
+                        balanceDisplay.textContent = `$${balance.toFixed(2)}`;
+                        debugLog(`Balance fetched: $${balance.toFixed(2)}`);
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    throw new Error(`Failed to fetch balance: ${error.message}`);
+                }
+            }
+
+            async function testConnection() {
+                try {
+                    const result = await apiCall('time', {});
+                    if (result && result.time) {
+                        debugLog(`Server time: ${new Date(result.time * 1000).toISOString()}`);
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    throw new Error(`Connection test failed: ${error.message}`);
+                }
+            }
+
+            async function getTick() {
+                try {
+                    const result = await apiCall('ticks', { ticks: 1 });
+                    if (result && result.ticks && result.ticks.length > 0) {
+                        const price = result.ticks[0].quote;
+                        debugLog(`Current tick: ${price}`);
+                        return price;
+                    }
+                    return null;
+                } catch (error) {
+                    debugLog(`Get tick error: ${error.message}`);
+                    return null;
+                }
+            }
+
+            // ===== CONNECT =====
+            async function connectToDeriv() {
+                const token = tokenInput.value.trim();
+                if (!token) {
+                    showError('Please enter your Deriv API token.');
+                    return;
+                }
+
+                if (!token.startsWith('pat_')) {
+                    showError('Invalid token format. Token should start with "pat_"');
+                    return;
+                }
+
+                // Check server first
+                const serverOnline = await checkServer();
+                if (!serverOnline) {
+                    showError('Backend server is offline. Please start the server.');
+                    return;
+                }
+
+                connectBtn.disabled = true;
+                connectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> connecting...';
+                errorMessage.classList.remove('show');
+                debugLog('Starting connection...');
+
+                try {
+                    derivToken = token;
+                    
+                    // Test connection
+                    debugLog('Testing connection...');
+                    const connected = await testConnection();
+                    
+                    if (!connected) {
+                        throw new Error('Connection test failed');
+                    }
+                    
+                    // Fetch balance
+                    debugLog('Fetching balance...');
+                    const balanceSuccess = await fetchBalance();
+                    
+                    if (!balanceSuccess) {
+                        throw new Error('Failed to fetch balance. Check token permissions.');
+                    }
+                    
+                    isConnected = true;
+                    connectBtn.innerHTML = '<i class="fas fa-check-circle"></i> Connected';
+                    connectBtn.style.background = '#1f8b4c';
+                    connectBtn.style.borderColor = '#2ecc71';
+                    execBtn.disabled = false;
+                    tickStatus.innerHTML = '<i class="fas fa-circle" style="color: #f1c40f; font-size: 0.5rem;"></i> ready';
+                    debugLog('Connected successfully! ✓');
+                    showError('Connected successfully! ✓');
+
+                } catch (error) {
+                    debugLog(`Connection error: ${error.message}`);
+                    showError(`Connection failed: ${error.message}`);
+                    connectBtn.innerHTML = '<i class="fas fa-link"></i> Connect';
+                    connectBtn.disabled = false;
+                    isConnected = false;
+                }
+            }
+
+            // ===== TRADE EXECUTION =====
+            async function executeTrade() {
+                if (!isConnected) return;
+
+                try {
+                    const currentPrice = await getTick();
+                    if (currentPrice === null) {
+                        showError('Failed to get current price');
+                        return;
+                    }
+
+                    tickCount++;
+                    tickCounterSpan.textContent = tickCount;
+
+                    let isWin = false;
+                    let result = 'loss';
+
+                    if (activeTradeType === 'evenodd') {
+                        const isEven = (Math.floor(currentPrice) % 2 === 0);
+                        const predictedEven = Math.random() > 0.5;
+                        isWin = (isEven === predictedEven);
+                        result = isWin ? 'win' : 'loss';
+                    } else {
+                        const threshold = 50;
+                        const isOver = currentPrice > threshold;
+                        const predictedOver = Math.random() > 0.5;
+                        isWin = (isOver === predictedOver);
+                        result = isWin ? 'win' : 'loss';
+                    }
+
+                    tradeHistory.push({
+                        type: activeTradeType,
+                        result: result,
+                        tick: tickCount,
+                        price: currentPrice.toFixed(2)
+                    });
+
+                    if (balance !== null) {
+                        const delta = result === 'win' ? 0.5 : -0.4;
+                        balance = Math.max(0, balance + delta);
+                        balanceDisplay.textContent = `$${balance.toFixed(2)}`;
+                    }
+
+                    updateUI();
+                    tickStatus.innerHTML = `<i class="fas fa-circle" style="color: #2ecc71; font-size: 0.5rem;"></i> tick #${tickCount}`;
+
+                } catch (error) {
+                    console.error('Trade execution error:', error);
+                    showError(`Trade error: ${error.message}`);
+                }
+            }
+
+            function toggleBot() {
+                if (!isConnected) {
+                    showError('Connect to Deriv first.');
+                    return;
+                }
+
+                if (isBotRunning) {
+                    if (botInterval) {
+                        clearInterval(botInterval);
+                        botInterval = null;
+                    }
+                    isBotRunning = false;
+                    execBtn.innerHTML = '<i class="fas fa-play"></i> Start bot (tick)';
+                    tickStatus.innerHTML = '<i class="fas fa-pause"></i> paused';
+                    debugLog('Bot stopped');
+                } else {
+                    isBotRunning = true;
+                    execBtn.innerHTML = '<i class="fas fa-stop"></i> Stop bot';
+                    tickStatus.innerHTML = '<i class="fas fa-circle" style="color: #2ecc71; font-size: 0.5rem;"></i> running';
+                    debugLog('Bot started');
+
+                    executeTrade().then(() => {
+                        if (botInterval) clearInterval(botInterval);
+                        botInterval = setInterval(executeTrade, 2000);
+                    });
+                }
+            }
+
+            // ===== UI UPDATE =====
+            function updateUI() {
+                tradeCounter.textContent = `${tradeHistory.length} trades`;
+
+                if (tradeHistory.length === 0) {
+                    historyList.innerHTML = `<div style="color: #4f6297; text-align: center; padding: 14px 0; font-size: 0.8rem;">no trades yet</div>`;
+                    return;
+                }
+
+                let html = '';
+                const items = tradeHistory.slice(-20).reverse();
+                for (const trade of items) {
+                    const resultClass = trade.result === 'win' ? 'win' : 'loss';
+                    const typeLabel = trade.type === 'evenodd' ? 'Even/Odd' : 'Over/Under';
+                    const resultLabel = trade.result === 'win' ? 'WIN' : 'LOSS';
+                    html += `
+                        <div class="history-item ${resultClass}">
+                            <span><span class="type-badge">${typeLabel}</span> #${trade.tick} @ ${trade.price}</span>
+                            <span class="result-badge ${resultClass}">${resultLabel}</span>
+                        </div>
+                    `;
+                }
+                historyList.innerHTML = html;
+            }
+
+            // ===== EVENT LISTENERS =====
+            connectBtn.addEventListener('click', connectToDeriv);
+            execBtn.addEventListener('click', toggleBot);
+
+            typeEvenOdd.addEventListener('click', function() {
+                if (isBotRunning) {
+                    showError('Stop the bot before changing trade type.');
+                    return;
+                }
+                typeEvenOdd.classList.add('active');
+                typeOverUnder.classList.remove('active');
+                activeTradeType = 'evenodd';
+                debugLog('Trade type: Even/Odd');
+            });
+
+            typeOverUnder.addEventListener('click', function() {
+                if (isBotRunning) {
+                    showError('Stop the bot before changing trade type.');
+                    return;
+                }
+                typeOverUnder.classList.add('active');
+                typeEvenOdd.classList.remove('active');
+                activeTradeType = 'overunder';
+                debugLog('Trade type: Over/Under');
+            });
+
+            // ===== INIT =====
+            updateUI();
+            tickCounterSpan.textContent = '0';
+            debugLog('Bot initialized. App ID: ' + APP_ID);
+            checkServer();
+        })();
+    </script>
+</body>
+</html>
