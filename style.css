@@ -1,8 +1,3 @@
-/* ========================================
-   Mmeli_FX Deriv Bot - Complete Styles
-   ======================================== */
-
-/* ----- Reset & Base ----- */
 * {
     margin: 0;
     padding: 0;
@@ -11,30 +6,25 @@
 
 body {
     background: radial-gradient(circle at 20% 30%, #141a26, #0b0f17);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    margin: 0;
 }
 
-/* ----- Main Card ----- */
 .bot-card {
     max-width: 820px;
     width: 100%;
     background: rgba(22, 30, 44, 0.88);
     backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
     border-radius: 48px;
     padding: 32px 30px 28px;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(70, 130, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    transition: all 0.3s ease;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(70, 130, 255, 0.12);
 }
 
-/* ----- Header ----- */
 .header {
     display: flex;
     align-items: center;
@@ -44,37 +34,24 @@ body {
     margin-bottom: 6px;
 }
 
-.brand {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-}
-
 .brand h1 {
     font-weight: 700;
     font-size: 2rem;
-    letter-spacing: -0.5px;
     background: linear-gradient(135deg, #d6e4ff, #7aa9ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .brand small {
     font-size: 0.95rem;
-    font-weight: 400;
     color: #7a8aa8;
-    -webkit-text-fill-color: #7a8aa8;
-    background: none;
 }
 
-/* ----- Status Pill ----- */
 .status-pill {
     background: #1d2537;
     border-radius: 60px;
     padding: 6px 18px 6px 14px;
     font-size: 0.8rem;
-    font-weight: 500;
     color: #b2c4e2;
     border: 1px solid #2e3a50;
     display: flex;
@@ -83,7 +60,6 @@ body {
 }
 
 .status-dot {
-    display: inline-block;
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -96,12 +72,6 @@ body {
     box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);
 }
 
-.status-dot.error {
-    background: #e74c5e;
-    box-shadow: 0 0 12px rgba(231, 76, 94, 0.4);
-}
-
-/* ----- Token Row ----- */
 .token-row {
     background: #111722;
     border-radius: 80px;
@@ -112,19 +82,13 @@ body {
     gap: 8px;
     margin: 18px 0 16px;
     border: 1px solid #293349;
-    transition: 0.25s;
-}
-
-.token-row:focus-within {
-    border-color: #3f7bff;
-    box-shadow: 0 0 0 4px rgba(63, 123, 255, 0.15);
 }
 
 .token-row input {
     flex: 1;
     background: transparent;
     border: none;
-    padding: 14px 6px 14px 0;
+    padding: 14px 6px;
     font-size: 0.95rem;
     color: #eef3fc;
     outline: none;
@@ -134,7 +98,6 @@ body {
 
 .token-row input::placeholder {
     color: #4d5f7c;
-    font-weight: 400;
 }
 
 .connect-btn {
@@ -146,31 +109,21 @@ body {
     font-size: 0.9rem;
     color: white;
     cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
+    transition: 0.15s;
     font-family: 'Inter', sans-serif;
-    letter-spacing: 0.3px;
     box-shadow: 0 6px 20px rgba(33, 96, 255, 0.3);
 }
 
 .connect-btn:hover {
     transform: scale(0.97);
     background: linear-gradient(145deg, #3a85ff, #2666e8);
-    box-shadow: 0 8px 28px rgba(33, 96, 255, 0.4);
-}
-
-.connect-btn:active {
-    transform: scale(0.93);
-    box-shadow: 0 2px 8px rgba(33, 96, 255, 0.2);
 }
 
 .connect-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
 }
 
-/* ----- Info Grid ----- */
 .info-grid {
     display: flex;
     flex-wrap: wrap;
@@ -183,11 +136,10 @@ body {
 .balance-box {
     background: #0e1420;
     border-radius: 60px;
-    padding: 8px 24px 8px 20px;
+    padding: 8px 24px;
     border: 1px solid #293349;
     color: #a2b7d6;
     font-weight: 500;
-    font-size: 0.95rem;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -197,7 +149,6 @@ body {
     color: #e3edff;
     font-weight: 700;
     font-size: 1.2rem;
-    letter-spacing: 0.3px;
     min-width: 60px;
 }
 
@@ -207,7 +158,6 @@ body {
     padding: 6px 20px;
     border: 1px solid #2e3b52;
     color: #b8cbeb;
-    font-size: 0.85rem;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -216,12 +166,10 @@ body {
 .ticker-badge strong {
     color: #e0edff;
     font-size: 1.1rem;
-    font-weight: 600;
     min-width: 50px;
     text-align: center;
 }
 
-/* ----- Strategy Panel ----- */
 .strategy-panel {
     display: flex;
     gap: 14px;
@@ -240,13 +188,8 @@ body {
     font-size: 0.95rem;
     color: #94a9cc;
     cursor: pointer;
-    transition: all 0.25s;
+    transition: 0.25s;
     font-family: 'Inter', sans-serif;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
 }
 
 .strategy-btn.active {
@@ -256,24 +199,12 @@ body {
     box-shadow: 0 6px 24px rgba(47, 128, 237, 0.25);
 }
 
-.strategy-btn:hover:not(.active) {
-    background: #232e47;
-    border-color: #3e5a82;
-    transform: translateY(-1px);
-}
-
-.strategy-btn:active {
-    transform: scale(0.96);
-}
-
-/* ----- Trade Status Bar ----- */
 .trade-status-bar {
     background: #0f1624;
     border-radius: 60px;
     padding: 10px 24px;
     border: 1px solid #293349;
     display: flex;
-    align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 10px;
@@ -289,8 +220,6 @@ body {
 .trade-status-bar .value {
     color: #e2edff;
     font-weight: 600;
-    font-size: 0.95rem;
-    transition: 0.2s;
 }
 
 .trade-status-bar .value.win {
@@ -301,31 +230,17 @@ body {
     color: #e74c5e;
 }
 
-/* ----- History ----- */
 .history-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 10px 0 10px;
+    margin: 10px 0;
 }
 
 .history-header h3 {
     font-weight: 500;
     font-size: 0.95rem;
     color: #b7c8e8;
-    letter-spacing: 0.2px;
-}
-
-.history-header > div {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.trade-count {
-    color: #8498b9;
-    font-size: 0.8rem;
-    font-weight: 500;
 }
 
 .clear-btn {
@@ -336,14 +251,12 @@ body {
     border-radius: 40px;
     font-size: 0.75rem;
     cursor: pointer;
-    transition: 0.2s;
     font-family: 'Inter', sans-serif;
 }
 
 .clear-btn:hover {
     background: #1f2940;
     color: #cddefa;
-    border-color: #4a5f82;
 }
 
 .history-box {
@@ -353,7 +266,6 @@ body {
     max-height: 290px;
     overflow-y: auto;
     border: 1px solid #212d42;
-    scroll-behavior: smooth;
 }
 
 .history-box::-webkit-scrollbar {
@@ -367,34 +279,17 @@ body {
     border-radius: 10px;
 }
 
-.history-box::-webkit-scrollbar-thumb:hover {
-    background: #556b8e;
-}
-
 .history-item {
     display: flex;
     justify-content: space-between;
     padding: 11px 16px;
     border-bottom: 1px solid #192234;
-    font-size: 0.9rem;
     color: #cfdef5;
     align-items: center;
-    animation: fadeIn 0.3s ease;
 }
 
 .history-item:last-child {
     border-bottom: none;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .history-item .badge-type {
@@ -404,7 +299,6 @@ body {
     font-size: 0.7rem;
     font-weight: 600;
     color: #a0b9e0;
-    letter-spacing: 0.3px;
     margin-right: 10px;
 }
 
@@ -425,19 +319,12 @@ body {
     background: #3d1e28;
 }
 
-.history-item .tick-num {
-    color: #94abcf;
-    font-weight: 500;
-}
-
 .empty-history {
     color: #455570;
     text-align: center;
     padding: 36px 0;
-    font-size: 0.9rem;
 }
 
-/* ----- Footer ----- */
 .footer-meta {
     display: flex;
     justify-content: flex-end;
@@ -445,7 +332,6 @@ body {
     gap: 16px;
     font-size: 0.75rem;
     color: #54668a;
-    letter-spacing: 0.2px;
 }
 
 .footer-meta span {
@@ -455,77 +341,17 @@ body {
     border: 1px solid #273348;
 }
 
-#sessionStatus {
-    color: #6f8ab0;
-}
-
-#sessionStatus.online {
-    color: #2ecc71;
-}
-
-/* ----- Responsive ----- */
 @media (max-width: 640px) {
     .bot-card {
         padding: 18px 14px 22px;
         border-radius: 32px;
     }
-
     .brand h1 {
         font-size: 1.5rem;
     }
-
-    .brand small {
-        font-size: 0.8rem;
-    }
-
-    .token-row {
-        padding-left: 14px;
-    }
-
-    .connect-btn {
-        padding: 10px 18px;
-        font-size: 0.8rem;
-    }
-
     .strategy-btn {
         min-width: 100px;
         padding: 12px 8px;
         font-size: 0.85rem;
-    }
-
-    .balance-box {
-        padding: 6px 16px 6px 14px;
-        font-size: 0.85rem;
-    }
-
-    .balance-box span:last-child {
-        font-size: 1rem;
-    }
-
-    .ticker-badge {
-        padding: 4px 14px;
-        font-size: 0.8rem;
-    }
-
-    .ticker-badge strong {
-        font-size: 0.95rem;
-        min-width: 40px;
-    }
-
-    .history-item {
-        flex-wrap: wrap;
-        gap: 4px;
-        padding: 10px 12px;
-        font-size: 0.8rem;
-    }
-
-    .history-header {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .history-header > div {
-        flex-wrap: wrap;
-        gap: 8px;
     }
 }
