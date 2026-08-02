@@ -1,1 +1,0 @@
-const CONFIG={APP_ID:"1089",WS_URL:"wss://ws.derivws.com/websockets/v3",SYMBOL:"R_100"};
