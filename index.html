@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deriv · live ticks (public socket)</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📈 Trading Analysis · Simulator</title>
     <style>
         * {
             margin: 0;
@@ -20,16 +20,16 @@
             padding: 1.2rem;
         }
         .card {
-            max-width: 720px;
+            max-width: 780px;
             width: 100%;
             background: #ffffff;
             border-radius: 2rem;
-            box-shadow: 0 20px 40px -10px rgba(0, 20, 30, 0.2);
+            box-shadow: 0 20px 40px -10px rgba(0, 20, 30, 0.15);
             padding: 1.8rem 2rem 2rem;
         }
         h1 {
             font-weight: 600;
-            font-size: 1.7rem;
+            font-size: 1.8rem;
             letter-spacing: -0.02em;
             color: #0a1e2f;
             display: flex;
@@ -46,9 +46,9 @@
             background: #eaf3fc;
             border-radius: 0 8px 8px 0;
             line-height: 1.5;
-            padding: 0.4rem 1rem;
+            padding: 0.3rem 1rem;
         }
-        .status-bar {
+        .price-bar {
             background: #eaf0f5;
             padding: 0.6rem 1.2rem;
             border-radius: 60px;
@@ -56,66 +56,82 @@
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.8rem;
-            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
         }
-        .badge {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .price-big {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #0a1e2f;
+            letter-spacing: 0.5px;
         }
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 20px;
-            background: #b0bcc8;
-            transition: background 0.2s;
+        .change-badge {
+            font-weight: 500;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            background: #e3edf6;
         }
-        .dot.on {
-            background: #1db954;
-            box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.25);
-        }
-        .price-grid {
+        .change-badge.up { color: #0f7b3e; background: #dcfce8; }
+        .change-badge.down { color: #b22234; background: #ffe6e6; }
+        .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
-            margin: 0.8rem 0 1.2rem;
+            margin: 1.2rem 0;
         }
-        .price-box {
+        .indicator-box {
             background: #f2f8ff;
             border-radius: 1.2rem;
-            padding: 0.6rem 0.8rem 0.8rem;
-            text-align: center;
+            padding: 0.7rem 0.8rem 0.9rem;
             border: 1px solid #dde6ef;
+            text-align: center;
         }
-        .price-label {
+        .indicator-label {
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.4px;
             color: #4b657a;
             font-weight: 600;
         }
-        .price-value {
-            font-size: 2.2rem;
+        .indicator-value {
+            font-size: 1.6rem;
             font-weight: 600;
             color: #0a1e2f;
             line-height: 1.3;
-            font-variant-numeric: tabular-nums;
         }
-        .symbol-badge {
-            background: #0a1e2f;
-            color: white;
-            font-size: 0.9rem;
+        .indicator-sub {
+            font-size: 0.75rem;
+            color: #4d738b;
+        }
+        .signal-box {
+            background: #f2f8ff;
+            border-radius: 1.2rem;
+            padding: 0.7rem 1rem;
+            border: 1px solid #dde6ef;
+            margin: 0.8rem 0 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .signal-label {
             font-weight: 500;
-            padding: 0.15rem 1rem;
-            border-radius: 40px;
-            display: inline-block;
+            color: #1a3345;
         }
+        .signal-value {
+            font-weight: 600;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+        }
+        .signal-bull { background: #dcfce8; color: #0f7b3e; }
+        .signal-bear { background: #ffe6e6; color: #b22234; }
+        .signal-neutral { background: #eaf0f5; color: #3e5e72; }
         .actions {
             display: flex;
             gap: 0.6rem;
             flex-wrap: wrap;
-            margin: 1rem 0 0.8rem;
+            margin: 0.8rem 0 0.6rem;
         }
         .btn {
             background: white;
@@ -145,10 +161,10 @@
         .log-area {
             background: #f0f6fc;
             border-radius: 1.2rem;
-            padding: 0.6rem 1rem;
-            margin-top: 1.2rem;
+            padding: 0.5rem 1rem;
+            margin-top: 1rem;
             border: 1px solid #dfe9f0;
-            max-height: 130px;
+            max-height: 110px;
             overflow-y: auto;
             font-size: 0.8rem;
             color: #1d3a4f;
@@ -156,72 +172,68 @@
         }
         .log-entry {
             border-bottom: 1px solid #dce6ef;
-            padding: 0.25rem 0;
+            padding: 0.2rem 0;
             display: flex;
             gap: 0.6rem;
         }
         .log-entry:last-child { border-bottom: none; }
-        .log-time {
-            color: #4d738b;
-            min-width: 58px;
-        }
-        .log-msg { word-break: break-word; }
+        .log-time { color: #4d738b; min-width: 58px; }
         .footer {
             margin-top: 1rem;
             font-size: 0.7rem;
             color: #6f8aa0;
             text-align: center;
         }
-        .error-msg {
-            color: #b22234;
-            background: #ffe6e6;
-            border-radius: 30px;
-            padding: 0.3rem 1rem;
-            font-size: 0.8rem;
-            display: inline-block;
-        }
-        @media (max-width: 480px) {
+        @media (max-width: 500px) {
             .card { padding: 1.2rem; }
-            .price-grid { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .price-big { font-size: 1.4rem; }
         }
     </style>
 </head>
 <body>
 <div class="card" id="app">
-    <h1>📊 Deriv · tick</h1>
-    <div class="subhead">
-        <span id="symbolDisplay">R_100</span> · public WebSocket
+    <h1>📊 Trade · Sim</h1>
+    <div class="subhead">technical analysis · no broker · live simulated data</div>
+
+    <!-- price & change -->
+    <div class="price-bar">
+        <span class="price-big" id="priceDisplay">—</span>
+        <span class="change-badge" id="changeDisplay">—</span>
     </div>
 
-    <div class="status-bar">
-        <span class="badge">
-            <span class="dot" id="statusDot"></span>
-            <span id="statusText">idle</span>
-        </span>
-        <span id="tickCount">ticks 0</span>
-    </div>
-
-    <div class="price-grid">
-        <div class="price-box">
-            <div class="price-label">last price</div>
-            <div class="price-value" id="lastPrice">—</div>
+    <!-- indicators -->
+    <div class="grid-2">
+        <div class="indicator-box">
+            <div class="indicator-label">RSI (14)</div>
+            <div class="indicator-value" id="rsiDisplay">—</div>
+            <div class="indicator-sub">relative strength</div>
         </div>
-        <div class="price-box">
-            <div class="price-label">epoch</div>
-            <div class="price-value" id="epochDisplay" style="font-size:1.4rem;">—</div>
+        <div class="indicator-box">
+            <div class="indicator-label">SMA (20)</div>
+            <div class="indicator-value" id="smaDisplay">—</div>
+            <div class="indicator-sub">simple moving avg</div>
         </div>
     </div>
 
+    <!-- signal -->
+    <div class="signal-box">
+        <span class="signal-label">📈 signal</span>
+        <span class="signal-value" id="signalDisplay">waiting</span>
+    </div>
+
+    <!-- controls -->
     <div class="actions">
-        <button class="btn btn-primary" id="connectBtn">▶ Connect</button>
-        <button class="btn btn-outline" id="disconnectBtn">⏹ Disconnect</button>
-        <button class="btn btn-outline" id="clearLogBtn">🧹 Clear</button>
+        <button class="btn btn-primary" id="startBtn">▶ Start</button>
+        <button class="btn btn-outline" id="stopBtn">⏹ Stop</button>
+        <button class="btn btn-outline" id="resetBtn">🔄 Reset</button>
     </div>
 
+    <!-- log -->
     <div class="log-area" id="logContainer">
         <div class="log-entry"><span class="log-time">──</span><span class="log-msg">⚡ ready</span></div>
     </div>
-    <div class="footer">tick stream · wss://api.derivws.com/trading/v1/options/ws/public</div>
+    <div class="footer">simulated price · RSI &amp; SMA · for educational use</div>
 </div>
 
 <script>
@@ -229,36 +241,28 @@
         'use strict';
 
         // ----- DOM refs -----
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const tickCountEl = document.getElementById('tickCount');
-        const lastPriceEl = document.getElementById('lastPrice');
-        const epochDisplayEl = document.getElementById('epochDisplay');
+        const priceDisplay = document.getElementById('priceDisplay');
+        const changeDisplay = document.getElementById('changeDisplay');
+        const rsiDisplay = document.getElementById('rsiDisplay');
+        const smaDisplay = document.getElementById('smaDisplay');
+        const signalDisplay = document.getElementById('signalDisplay');
         const logContainer = document.getElementById('logContainer');
-        const symbolDisplay = document.getElementById('symbolDisplay');
 
-        const connectBtn = document.getElementById('connectBtn');
-        const disconnectBtn = document.getElementById('disconnectBtn');
-        const clearLogBtn = document.getElementById('clearLogBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
 
         // ----- state -----
-        let socket = null;
-        let isConnected = false;
-        let tickCounter = 0;
-        const MAX_LOG = 50;
+        let running = false;
+        let timer = null;
+        let priceHistory = [];
+        const MAX_HISTORY = 60; // keep last 60 for SMA / RSI
+
+        // start with a base price
+        let currentPrice = 100.00;
 
         // ----- helpers -----
-        function setStatus(connected, msg) {
-            isConnected = connected;
-            statusDot.className = 'dot' + (connected ? ' on' : '');
-            statusText.textContent = msg || (connected ? 'connected' : 'disconnected');
-        }
-
-        function updateTickCount() {
-            tickCountEl.textContent = `ticks ${tickCounter}`;
-        }
-
-        function addLog(msg, isError = false) {
+        function addLog(msg) {
             const now = new Date();
             const time = now.toLocaleTimeString('en-GB', { hour12: false });
             const entry = document.createElement('div');
@@ -269,169 +273,205 @@
             const msgSpan = document.createElement('span');
             msgSpan.className = 'log-msg';
             msgSpan.textContent = msg;
-            if (isError) {
-                msgSpan.style.color = '#b22234';
-                msgSpan.style.fontWeight = '500';
-            }
             entry.appendChild(timeSpan);
             entry.appendChild(msgSpan);
             logContainer.appendChild(entry);
-            while (logContainer.children.length > MAX_LOG) {
+            while (logContainer.children.length > 30) {
                 logContainer.removeChild(logContainer.firstChild);
             }
             logContainer.scrollTop = logContainer.scrollHeight;
         }
 
-        function clearLog() {
+        // ----- calculate RSI (14) -----
+        function calculateRSI(prices, period = 14) {
+            if (prices.length < period + 1) return null;
+            let gains = 0, losses = 0;
+            for (let i = prices.length - period; i < prices.length - 1; i++) {
+                const diff = prices[i + 1] - prices[i];
+                if (diff >= 0) gains += diff;
+                else losses += Math.abs(diff);
+            }
+            const avgGain = gains / period;
+            const avgLoss = losses / period;
+            if (avgLoss === 0) return 100;
+            const rs = avgGain / avgLoss;
+            const rsi = 100 - (100 / (1 + rs));
+            return Math.round(rsi * 10) / 10;
+        }
+
+        // ----- calculate SMA (simple) -----
+        function calculateSMA(prices, period = 20) {
+            if (prices.length < period) return null;
+            const slice = prices.slice(-period);
+            const sum = slice.reduce((a, b) => a + b, 0);
+            return Math.round((sum / period) * 100) / 100;
+        }
+
+        // ----- generate random walk step -----
+        function randomStep(price) {
+            // random walk with slight drift
+            const change = (Math.random() - 0.48) * 0.6; // range ~ -0.6 .. +0.6
+            let newPrice = price + change;
+            // keep price positive and within reasonable range
+            if (newPrice < 10) newPrice = 10 + Math.random() * 2;
+            if (newPrice > 500) newPrice = 500 - Math.random() * 2;
+            return Math.round(newPrice * 100) / 100;
+        }
+
+        // ----- update UI with new price -----
+        function updateAnalysis(newPrice) {
+            // update history
+            priceHistory.push(newPrice);
+            if (priceHistory.length > MAX_HISTORY) {
+                priceHistory.shift();
+            }
+
+            // display price
+            priceDisplay.textContent = newPrice.toFixed(2);
+
+            // calculate change from previous price (if exists)
+            if (priceHistory.length >= 2) {
+                const prev = priceHistory[priceHistory.length - 2];
+                const diff = newPrice - prev;
+                const pct = (diff / prev) * 100;
+                let changeText = `${diff >= 0 ? '+' : ''}${diff.toFixed(2)} (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`;
+                changeDisplay.textContent = changeText;
+                changeDisplay.className = 'change-badge ' + (diff >= 0 ? 'up' : 'down');
+            } else {
+                changeDisplay.textContent = '—';
+                changeDisplay.className = 'change-badge';
+            }
+
+            // RSI
+            const rsi = calculateRSI(priceHistory, 14);
+            if (rsi !== null) {
+                rsiDisplay.textContent = rsi.toFixed(1);
+            } else {
+                rsiDisplay.textContent = '—';
+            }
+
+            // SMA
+            const sma = calculateSMA(priceHistory, 20);
+            if (sma !== null) {
+                smaDisplay.textContent = sma.toFixed(2);
+            } else {
+                smaDisplay.textContent = '—';
+            }
+
+            // Signal: combine RSI + price vs SMA
+            let signal = 'neutral';
+            let signalClass = 'signal-neutral';
+            if (rsi !== null && sma !== null) {
+                if (rsi < 30 && newPrice < sma) {
+                    signal = '📈 oversold · buy';
+                    signalClass = 'signal-bull';
+                } else if (rsi > 70 && newPrice > sma) {
+                    signal = '📉 overbought · sell';
+                    signalClass = 'signal-bear';
+                } else if (rsi < 40 && newPrice < sma * 0.98) {
+                    signal = '↗️ weak bullish';
+                    signalClass = 'signal-bull';
+                } else if (rsi > 60 && newPrice > sma * 1.02) {
+                    signal = '↘️ weak bearish';
+                    signalClass = 'signal-bear';
+                } else {
+                    signal = '⚖️ neutral';
+                    signalClass = 'signal-neutral';
+                }
+            } else {
+                signal = '⏳ accumulating...';
+                signalClass = 'signal-neutral';
+            }
+            signalDisplay.textContent = signal;
+            signalDisplay.className = 'signal-value ' + signalClass;
+        }
+
+        // ----- tick generator -----
+        function tick() {
+            if (!running) return;
+            const newPrice = randomStep(currentPrice);
+            currentPrice = newPrice;
+            updateAnalysis(newPrice);
+            // log every 5 ticks (approx)
+            if (priceHistory.length % 5 === 0) {
+                addLog(`price ${newPrice.toFixed(2)}  |  RSI ${rsiDisplay.textContent}  |  SMA ${smaDisplay.textContent}`);
+            }
+        }
+
+        // ----- start / stop / reset -----
+        function startSimulation() {
+            if (running) return;
+            if (priceHistory.length === 0) {
+                // seed with some history
+                let seed = 100;
+                for (let i = 0; i < 25; i++) {
+                    seed = randomStep(seed);
+                    priceHistory.push(seed);
+                }
+                currentPrice = seed;
+                updateAnalysis(currentPrice);
+                addLog('🔄 seeded history (25 bars)');
+            }
+            running = true;
+            timer = setInterval(tick, 400); // 400ms ~ 2.5 ticks/sec
+            addLog('▶️ simulation started');
+            startBtn.textContent = '⏳ Running';
+            startBtn.disabled = true;
+        }
+
+        function stopSimulation() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            running = false;
+            startBtn.textContent = '▶ Start';
+            startBtn.disabled = false;
+            addLog('⏹ simulation stopped');
+        }
+
+        function resetSimulation() {
+            stopSimulation();
+            priceHistory = [];
+            currentPrice = 100;
+            priceDisplay.textContent = '—';
+            changeDisplay.textContent = '—';
+            changeDisplay.className = 'change-badge';
+            rsiDisplay.textContent = '—';
+            smaDisplay.textContent = '—';
+            signalDisplay.textContent = 'waiting';
+            signalDisplay.className = 'signal-value signal-neutral';
+            // clear log but keep one line
             while (logContainer.firstChild) {
                 logContainer.removeChild(logContainer.firstChild);
             }
             const empty = document.createElement('div');
             empty.className = 'log-entry';
-            empty.innerHTML = `<span class="log-time">──</span><span class="log-msg">log cleared</span>`;
+            empty.innerHTML = `<span class="log-time">──</span><span class="log-msg">🔄 reset</span>`;
             logContainer.appendChild(empty);
-        }
-
-        // ----- process tick message -----
-        function handleTickMessage(data) {
-            try {
-                // Deriv tick format: { tick: { quote, epoch, symbol, ... } }
-                if (data && data.tick) {
-                    const tick = data.tick;
-                    const price = tick.quote;
-                    const epoch = tick.epoch;
-                    const symbol = tick.symbol || 'R_100';
-
-                    if (price !== undefined && price !== null) {
-                        lastPriceEl.textContent = Number(price).toFixed(2);
-                    }
-                    if (epoch !== undefined && epoch !== null) {
-                        epochDisplayEl.textContent = epoch;
-                    }
-                    if (symbol && symbolDisplay) {
-                        symbolDisplay.textContent = symbol;
-                    }
-
-                    tickCounter++;
-                    updateTickCount();
-                    addLog(`tick ${price}  (${epoch})`);
-                } else if (data && data.error) {
-                    addLog(`⚠️ ${data.error.message || 'error'}`, true);
-                } else {
-                    // subscription ack or other
-                    if (data.msg_type === 'tick') {
-                        // already handled
-                    } else if (data.echo_req && data.subscription) {
-                        addLog(`✅ subscribed ${data.subscription?.symbol || ''}`);
-                    } else if (data.msg_type !== 'pong') {
-                        addLog(`📩 ${JSON.stringify(data).slice(0, 60)}`);
-                    }
-                }
-            } catch (e) {
-                addLog(`⚠️ parse error: ${e.message}`, true);
-            }
-        }
-
-        // ----- connect -----
-        function connectWebSocket() {
-            if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
-                addLog('already connected');
-                return;
-            }
-            if (socket) {
-                try { socket.close(); } catch (_) {}
-                socket = null;
-            }
-
-            // Use the provided public WebSocket URL
-            const WS_URL = 'wss://api.derivws.com/trading/v1/options/ws/public';
-            addLog('🔌 opening socket...');
-
-            try {
-                socket = new WebSocket(WS_URL);
-                socket.binaryType = 'arraybuffer';
-
-                socket.onopen = function() {
-                    setStatus(true, 'connected');
-                    addLog('✅ socket open, sending subscribe');
-                    // subscribe to R_100 ticks
-                    const sub = {
-                        ticks: 'R_100',
-                        subscribe: 1
-                    };
-                    socket.send(JSON.stringify(sub));
-                    addLog('📨 subscribe R_100');
-                };
-
-                socket.onmessage = function(event) {
-                    let raw;
-                    if (typeof event.data === 'string') {
-                        raw = event.data;
-                    } else if (event.data instanceof ArrayBuffer) {
-                        const dec = new TextDecoder('utf-8');
-                        raw = dec.decode(event.data);
-                    } else {
-                        addLog('⚠️ unknown data type', true);
-                        return;
-                    }
-                    try {
-                        const parsed = JSON.parse(raw);
-                        handleTickMessage(parsed);
-                    } catch (e) {
-                        addLog(`⚠️ invalid JSON: ${raw.slice(0, 50)}`, true);
-                    }
-                };
-
-                socket.onerror = function(err) {
-                    addLog(`❌ socket error: ${err.message || 'unknown'}`, true);
-                    setStatus(false, 'error');
-                };
-
-                socket.onclose = function(event) {
-                    const clean = event.wasClean;
-                    setStatus(false, 'closed');
-                    addLog(`🔒 closed (${event.code} ${clean ? 'clean' : 'unclean'})`, !clean);
-                    socket = null;
-                };
-
-            } catch (err) {
-                addLog(`⚠️ connection failed: ${err.message}`, true);
-                setStatus(false, 'failed');
-                socket = null;
-            }
-        }
-
-        // ----- disconnect -----
-        function disconnectWebSocket() {
-            if (socket) {
-                try {
-                    socket.close(1000, 'user disconnect');
-                } catch (_) {}
-                socket = null;
-                setStatus(false, 'disconnected');
-                addLog('⏹ disconnected');
-            } else {
-                addLog('no active connection');
-                setStatus(false, 'idle');
-            }
+            addLog('🔄 reset complete');
+            startBtn.textContent = '▶ Start';
+            startBtn.disabled = false;
         }
 
         // ----- init -----
         function init() {
-            setStatus(false, 'idle');
-            updateTickCount();
-            lastPriceEl.textContent = '—';
-            epochDisplayEl.textContent = '—';
-            addLog('🟢 ready — press Connect');
+            // seed initial price for display
+            currentPrice = 100;
+            priceHistory = [];
+            // pre-seed some history so indicators have data on start
+            let seed = 100;
+            for (let i = 0; i < 30; i++) {
+                seed = randomStep(seed);
+                priceHistory.push(seed);
+            }
+            currentPrice = seed;
+            updateAnalysis(currentPrice);
+            addLog('🟢 ready · press Start to simulate');
 
-            connectBtn.addEventListener('click', connectWebSocket);
-            disconnectBtn.addEventListener('click', disconnectWebSocket);
-            clearLogBtn.addEventListener('click', clearLog);
-
-            // auto connect after small delay to show dashboard
-            setTimeout(() => {
-                connectWebSocket();
-            }, 400);
+            startBtn.addEventListener('click', startSimulation);
+            stopBtn.addEventListener('click', stopSimulation);
+            resetBtn.addEventListener('click', resetSimulation);
         }
 
         init();
