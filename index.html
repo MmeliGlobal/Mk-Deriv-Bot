@@ -3,64 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deriv WebSocket · simple tick viewer</title>
+    <title>Deriv · live ticks</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
         body {
-            background: #f6f9fc;
+            background: #f4f8fe;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 1.5rem;
+            padding: 1.2rem;
         }
         .card {
             max-width: 720px;
             width: 100%;
-            background: white;
+            background: #ffffff;
             border-radius: 2rem;
-            box-shadow: 0 20px 40px -12px rgba(0, 20, 30, 0.25);
-            padding: 2rem 2rem 2.2rem;
-            transition: all 0.2s;
+            box-shadow: 0 20px 40px -10px rgba(0, 20, 30, 0.2);
+            padding: 1.8rem 2rem 2rem;
         }
         h1 {
             font-weight: 600;
-            font-size: 1.8rem;
+            font-size: 1.7rem;
             letter-spacing: -0.02em;
             color: #0a1e2f;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-top: 0.2rem;
-            margin-bottom: 0.4rem;
+            gap: 0.4rem;
+            margin-bottom: 0.1rem;
         }
-        .sub {
+        .subhead {
             color: #3e5e72;
-            font-size: 0.95rem;
-            margin-bottom: 1.6rem;
-            border-left: 4px solid #85c8f2;
+            font-size: 0.9rem;
+            margin-bottom: 1.4rem;
             padding-left: 1rem;
-            background: #eef6fe;
+            border-left: 4px solid #7bbde6;
+            background: #eaf3fc;
             border-radius: 0 8px 8px 0;
             line-height: 1.5;
+            padding: 0.4rem 1rem;
         }
         .status-bar {
             background: #eaf0f5;
-            padding: 0.7rem 1.2rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 60px;
-            font-size: 0.9rem;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 2rem;
+            margin-bottom: 1.8rem;
+            font-size: 0.9rem;
         }
         .badge {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
         }
@@ -68,107 +68,87 @@
             width: 12px;
             height: 12px;
             border-radius: 20px;
-            background: #3b9eff;
-            display: inline-block;
-            transition: background 0.25s;
-        }
-        .dot.connected {
-            background: #1db954;
-            box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.3);
-        }
-        .dot.disconnected {
             background: #b0bcc8;
+            transition: background 0.2s;
+        }
+        .dot.on {
+            background: #1db954;
+            box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.25);
         }
         .price-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
-            margin: 1.8rem 0 1.2rem;
+            margin: 0.8rem 0 1.2rem;
         }
         .price-box {
-            background: #f2f6fa;
+            background: #f2f8ff;
             border-radius: 1.2rem;
-            padding: 0.8rem 1.2rem;
+            padding: 0.6rem 0.8rem 0.8rem;
             text-align: center;
-            border: 1px solid #dde6ed;
+            border: 1px solid #dde6ef;
         }
         .price-label {
             font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             color: #4b657a;
             font-weight: 600;
         }
         .price-value {
-            font-size: 2.1rem;
+            font-size: 2.2rem;
             font-weight: 600;
             color: #0a1e2f;
             line-height: 1.3;
             font-variant-numeric: tabular-nums;
         }
-        .price-value .pip {
-            font-size: 1.2rem;
-            font-weight: 400;
-            color: #3f627c;
-        }
         .symbol-badge {
             background: #0a1e2f;
             color: white;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 500;
-            padding: 0.2rem 1rem;
+            padding: 0.15rem 1rem;
             border-radius: 40px;
             display: inline-block;
-            margin-bottom: 0.2rem;
         }
         .actions {
             display: flex;
-            gap: 0.8rem;
+            gap: 0.6rem;
             flex-wrap: wrap;
-            margin: 1.8rem 0 0.8rem;
+            margin: 1rem 0 0.8rem;
         }
         .btn {
             background: white;
             border: 1px solid #cbd7e3;
-            padding: 0.6rem 1.4rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 60px;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             color: #1a3345;
-            transition: all 0.15s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            transition: 0.1s;
             background: #f6faff;
             flex: 1 1 auto;
+            display: inline-flex;
             justify-content: center;
+            align-items: center;
+            gap: 5px;
         }
         .btn-primary {
             background: #0a1e2f;
             border: 1px solid #0a1e2f;
             color: white;
         }
-        .btn-primary:hover {
-            background: #1a3348;
-        }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #bccddc;
-        }
-        .btn-outline:hover {
-            background: #e3edf6;
-        }
-        .btn:active {
-            transform: scale(0.96);
-        }
+        .btn-primary:hover { background: #1a3348; }
+        .btn-outline:hover { background: #e3edf6; }
+        .btn:active { transform: scale(0.96); }
         .log-area {
-            background: #f0f5fb;
+            background: #f0f6fc;
             border-radius: 1.2rem;
-            padding: 0.8rem 1.2rem;
-            margin-top: 1.6rem;
+            padding: 0.6rem 1rem;
+            margin-top: 1.2rem;
             border: 1px solid #dfe9f0;
-            max-height: 140px;
+            max-height: 130px;
             overflow-y: auto;
             font-size: 0.8rem;
             color: #1d3a4f;
@@ -176,51 +156,51 @@
         }
         .log-entry {
             border-bottom: 1px solid #dce6ef;
-            padding: 0.35rem 0;
+            padding: 0.25rem 0;
             display: flex;
-            gap: 0.8rem;
+            gap: 0.6rem;
         }
-        .log-entry:last-child {
-            border-bottom: none;
-        }
+        .log-entry:last-child { border-bottom: none; }
         .log-time {
             color: #4d738b;
-            min-width: 60px;
+            min-width: 58px;
         }
-        .log-msg {
-            word-break: break-word;
-        }
+        .log-msg { word-break: break-word; }
         .footer {
-            margin-top: 1.4rem;
-            font-size: 0.75rem;
+            margin-top: 1rem;
+            font-size: 0.7rem;
             color: #6f8aa0;
             text-align: center;
         }
+        .error-msg {
+            color: #b22234;
+            background: #ffe6e6;
+            border-radius: 30px;
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
         @media (max-width: 480px) {
-            .card { padding: 1.5rem; }
+            .card { padding: 1.2rem; }
             .price-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 <div class="card" id="app">
-    <h1>
-        <span>📡</span> Deriv · Tick
-    </h1>
-    <div class="sub">
-        ⚡ Public WebSocket &nbsp;·&nbsp; <span id="symbolDisplay">R_100</span>
+    <h1>📊 Deriv · tick</h1>
+    <div class="subhead">
+        <span id="symbolDisplay">R_100</span> · public WebSocket
     </div>
 
-    <!-- status -->
     <div class="status-bar">
         <span class="badge">
             <span class="dot" id="statusDot"></span>
-            <span id="statusText">connecting</span>
+            <span id="statusText">idle</span>
         </span>
-        <span id="tickCount">ticks: 0</span>
+        <span id="tickCount">ticks 0</span>
     </div>
 
-    <!-- price cards -->
     <div class="price-grid">
         <div class="price-box">
             <div class="price-label">last price</div>
@@ -228,22 +208,20 @@
         </div>
         <div class="price-box">
             <div class="price-label">epoch</div>
-            <div class="price-value" id="epochDisplay" style="font-size:1.2rem;">—</div>
+            <div class="price-value" id="epochDisplay" style="font-size:1.4rem;">—</div>
         </div>
     </div>
 
-    <!-- controls -->
     <div class="actions">
         <button class="btn btn-primary" id="connectBtn">▶ Connect</button>
         <button class="btn btn-outline" id="disconnectBtn">⏹ Disconnect</button>
-        <button class="btn btn-outline" id="clearLogBtn">🧹 Clear log</button>
+        <button class="btn btn-outline" id="clearLogBtn">🧹 Clear</button>
     </div>
 
-    <!-- log -->
     <div class="log-area" id="logContainer">
-        <div class="log-entry"><span class="log-time">──</span><span class="log-msg">🟢 ready</span></div>
+        <div class="log-entry"><span class="log-time">──</span><span class="log-msg">⚡ ready</span></div>
     </div>
-    <div class="footer">public socket · tick stream for R_100</div>
+    <div class="footer">tick stream · wss://ws.derivws.com</div>
 </div>
 
 <script>
@@ -264,21 +242,20 @@
         const clearLogBtn = document.getElementById('clearLogBtn');
 
         // ----- state -----
-        let socket = null;               // WebSocket instance
+        let socket = null;
         let isConnected = false;
         let tickCounter = 0;
-        let reconnectAttempt = 0;
-        const MAX_LOG_ENTRIES = 40;
+        const MAX_LOG = 50;
 
         // ----- helpers -----
         function setStatus(connected, msg) {
             isConnected = connected;
-            statusDot.className = 'dot ' + (connected ? 'connected' : 'disconnected');
+            statusDot.className = 'dot' + (connected ? ' on' : '');
             statusText.textContent = msg || (connected ? 'connected' : 'disconnected');
         }
 
         function updateTickCount() {
-            tickCountEl.textContent = `ticks: ${tickCounter}`;
+            tickCountEl.textContent = `ticks ${tickCounter}`;
         }
 
         function addLog(msg, isError = false) {
@@ -299,8 +276,7 @@
             entry.appendChild(timeSpan);
             entry.appendChild(msgSpan);
             logContainer.appendChild(entry);
-            // trim
-            while (logContainer.children.length > MAX_LOG_ENTRIES) {
+            while (logContainer.children.length > MAX_LOG) {
                 logContainer.removeChild(logContainer.firstChild);
             }
             logContainer.scrollTop = logContainer.scrollHeight;
@@ -310,55 +286,45 @@
             while (logContainer.firstChild) {
                 logContainer.removeChild(logContainer.firstChild);
             }
-            // add placeholder
             const empty = document.createElement('div');
             empty.className = 'log-entry';
             empty.innerHTML = `<span class="log-time">──</span><span class="log-msg">log cleared</span>`;
             logContainer.appendChild(empty);
         }
 
-        // ----- process incoming tick -----
+        // ----- process tick message -----
         function handleTickMessage(data) {
             try {
-                // Deriv tick response: { tick: { ask, bid, epoch, id, pip_size, quote, symbol } }
+                // Deriv tick format: { tick: { quote, epoch, symbol, ... } }
                 if (data && data.tick) {
                     const tick = data.tick;
                     const price = tick.quote;
                     const epoch = tick.epoch;
                     const symbol = tick.symbol || 'R_100';
 
-                    // update UI
                     if (price !== undefined && price !== null) {
-                        lastPriceEl.textContent = price.toFixed(2);
+                        lastPriceEl.textContent = Number(price).toFixed(2);
                     }
                     if (epoch !== undefined && epoch !== null) {
                         epochDisplayEl.textContent = epoch;
                     }
-                    // symbol (first tick sets symbol)
                     if (symbol && symbolDisplay) {
                         symbolDisplay.textContent = symbol;
                     }
 
                     tickCounter++;
                     updateTickCount();
-
-                    // log tick (compact)
-                    const logMsg = `tick ${price}  (epoch ${epoch})`;
-                    addLog(logMsg);
+                    addLog(`tick ${price}  (${epoch})`);
                 } else if (data && data.error) {
-                    // error from socket
-                    addLog(`⚠️ error: ${data.error.message || 'unknown'}`, true);
+                    addLog(`⚠️ ${data.error.message || 'error'}`, true);
                 } else {
-                    // other message (like ping/pong or subscription ack)
-                    if (data.msg_type === 'tick' || data.msg_type === 'proposal') {
-                        // already handled above
+                    // subscription ack or other
+                    if (data.msg_type === 'tick') {
+                        // already handled
                     } else if (data.echo_req && data.subscription) {
-                        addLog(`✅ subscribed to ${data.subscription?.symbol || 'tick'}`);
-                    } else {
-                        // ignore pong or other internal
-                        if (data.msg_type !== 'pong') {
-                            addLog(`📩 ${JSON.stringify(data).slice(0, 70)}`);
-                        }
+                        addLog(`✅ subscribed ${data.subscription?.symbol || ''}`);
+                    } else if (data.msg_type !== 'pong') {
+                        addLog(`📩 ${JSON.stringify(data).slice(0, 60)}`);
                     }
                 }
             } catch (e) {
@@ -366,71 +332,64 @@
             }
         }
 
-        // ----- open WebSocket connection -----
+        // ----- connect -----
         function connectWebSocket() {
             if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
-                addLog('already connected or connecting', false);
+                addLog('already connected');
                 return;
             }
-
-            // close any dangling socket
             if (socket) {
                 try { socket.close(); } catch (_) {}
                 socket = null;
             }
 
-            const WS_URL = 'wss://ws.derivws.com/websockets/v3?app_id=1089'; // public app_id
+            const WS_URL = 'wss://ws.derivws.com/websockets/v3?app_id=1089';
             addLog('🔌 opening socket...');
 
             try {
                 socket = new WebSocket(WS_URL);
-                socket.binaryType = 'arraybuffer'; // not used but safe
+                socket.binaryType = 'arraybuffer';
 
                 socket.onopen = function() {
                     setStatus(true, 'connected');
                     addLog('✅ socket open, sending subscribe');
-                    // send subscription for R_100 ticks
-                    const subscribeMsg = {
+                    // subscribe to R_100 ticks
+                    const sub = {
                         ticks: 'R_100',
                         subscribe: 1
                     };
-                    socket.send(JSON.stringify(subscribeMsg));
-                    addLog('📨 subscribe: R_100');
+                    socket.send(JSON.stringify(sub));
+                    addLog('📨 subscribe R_100');
                 };
 
                 socket.onmessage = function(event) {
-                    // handle text or binary (binary not expected)
-                    let rawData;
+                    let raw;
                     if (typeof event.data === 'string') {
-                        rawData = event.data;
+                        raw = event.data;
                     } else if (event.data instanceof ArrayBuffer) {
-                        // unlikely for tick stream, but decode as utf-8
-                        const decoder = new TextDecoder('utf-8');
-                        rawData = decoder.decode(event.data);
+                        const dec = new TextDecoder('utf-8');
+                        raw = dec.decode(event.data);
                     } else {
                         addLog('⚠️ unknown data type', true);
                         return;
                     }
-
                     try {
-                        const parsed = JSON.parse(rawData);
+                        const parsed = JSON.parse(raw);
                         handleTickMessage(parsed);
                     } catch (e) {
-                        addLog(`⚠️ invalid JSON: ${rawData.slice(0, 60)}`, true);
+                        addLog(`⚠️ invalid JSON: ${raw.slice(0, 50)}`, true);
                     }
                 };
 
-                socket.onerror = function(error) {
-                    addLog(`❌ socket error: ${error.message || 'unknown'}`, true);
+                socket.onerror = function(err) {
+                    addLog(`❌ socket error: ${err.message || 'unknown'}`, true);
                     setStatus(false, 'error');
                 };
 
                 socket.onclose = function(event) {
-                    const wasClean = event.wasClean;
-                    const code = event.code;
-                    const reason = event.reason || 'no reason';
+                    const clean = event.wasClean;
                     setStatus(false, 'closed');
-                    addLog(`🔒 closed (${code} ${wasClean ? 'clean' : 'unclean'})`, !wasClean);
+                    addLog(`🔒 closed (${event.code} ${clean ? 'clean' : 'unclean'})`, !clean);
                     socket = null;
                 };
 
@@ -445,19 +404,18 @@
         function disconnectWebSocket() {
             if (socket) {
                 try {
-                    // unsubscribe optional: just close
                     socket.close(1000, 'user disconnect');
                 } catch (_) {}
                 socket = null;
                 setStatus(false, 'disconnected');
-                addLog('⏹ manually disconnected');
+                addLog('⏹ disconnected');
             } else {
                 addLog('no active connection');
                 setStatus(false, 'idle');
             }
         }
 
-        // ----- init UI -----
+        // ----- init -----
         function init() {
             setStatus(false, 'idle');
             updateTickCount();
@@ -465,23 +423,14 @@
             epochDisplayEl.textContent = '—';
             addLog('🟢 ready — press Connect');
 
-            connectBtn.addEventListener('click', function() {
-                connectWebSocket();
-            });
+            connectBtn.addEventListener('click', connectWebSocket);
+            disconnectBtn.addEventListener('click', disconnectWebSocket);
+            clearLogBtn.addEventListener('click', clearLog);
 
-            disconnectBtn.addEventListener('click', function() {
-                disconnectWebSocket();
-            });
-
-            clearLogBtn.addEventListener('click', function() {
-                clearLog();
-            });
-
-            // auto connect on page load (optional)
-            // small delay to let UI settle
+            // auto connect after small delay to show dashboard
             setTimeout(() => {
                 connectWebSocket();
-            }, 300);
+            }, 400);
         }
 
         init();
