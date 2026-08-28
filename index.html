@@ -1,174 +1,491 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Deriv Dashboard</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deriv WebSocket · simple tick viewer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f6f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1.5rem;
+        }
+        .card {
+            max-width: 720px;
+            width: 100%;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px -12px rgba(0, 20, 30, 0.25);
+            padding: 2rem 2rem 2.2rem;
+            transition: all 0.2s;
+        }
+        h1 {
+            font-weight: 600;
+            font-size: 1.8rem;
+            letter-spacing: -0.02em;
+            color: #0a1e2f;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.2rem;
+            margin-bottom: 0.4rem;
+        }
+        .sub {
+            color: #3e5e72;
+            font-size: 0.95rem;
+            margin-bottom: 1.6rem;
+            border-left: 4px solid #85c8f2;
+            padding-left: 1rem;
+            background: #eef6fe;
+            border-radius: 0 8px 8px 0;
+            line-height: 1.5;
+        }
+        .status-bar {
+            background: #eaf0f5;
+            padding: 0.7rem 1.2rem;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 20px;
+            background: #3b9eff;
+            display: inline-block;
+            transition: background 0.25s;
+        }
+        .dot.connected {
+            background: #1db954;
+            box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.3);
+        }
+        .dot.disconnected {
+            background: #b0bcc8;
+        }
+        .price-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.8rem 0 1.2rem;
+        }
+        .price-box {
+            background: #f2f6fa;
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.2rem;
+            text-align: center;
+            border: 1px solid #dde6ed;
+        }
+        .price-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #4b657a;
+            font-weight: 600;
+        }
+        .price-value {
+            font-size: 2.1rem;
+            font-weight: 600;
+            color: #0a1e2f;
+            line-height: 1.3;
+            font-variant-numeric: tabular-nums;
+        }
+        .price-value .pip {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #3f627c;
+        }
+        .symbol-badge {
+            background: #0a1e2f;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            display: inline-block;
+            margin-bottom: 0.2rem;
+        }
+        .actions {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin: 1.8rem 0 0.8rem;
+        }
+        .btn {
+            background: white;
+            border: 1px solid #cbd7e3;
+            padding: 0.6rem 1.4rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #1a3345;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f6faff;
+            flex: 1 1 auto;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: #0a1e2f;
+            border: 1px solid #0a1e2f;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1a3348;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #bccddc;
+        }
+        .btn-outline:hover {
+            background: #e3edf6;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .log-area {
+            background: #f0f5fb;
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.2rem;
+            margin-top: 1.6rem;
+            border: 1px solid #dfe9f0;
+            max-height: 140px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            color: #1d3a4f;
+            font-family: 'SF Mono', 'Menlo', monospace;
+        }
+        .log-entry {
+            border-bottom: 1px solid #dce6ef;
+            padding: 0.35rem 0;
+            display: flex;
+            gap: 0.8rem;
+        }
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        .log-time {
+            color: #4d738b;
+            min-width: 60px;
+        }
+        .log-msg {
+            word-break: break-word;
+        }
+        .footer {
+            margin-top: 1.4rem;
+            font-size: 0.75rem;
+            color: #6f8aa0;
+            text-align: center;
+        }
+        @media (max-width: 480px) {
+            .card { padding: 1.5rem; }
+            .price-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
+<div class="card" id="app">
+    <h1>
+        <span>📡</span> Deriv · Tick
+    </h1>
+    <div class="sub">
+        ⚡ Public WebSocket &nbsp;·&nbsp; <span id="symbolDisplay">R_100</span>
+    </div>
 
-    <!-- HEADER -->
-    <header class="app-header">
-        <div class="header-left">
-            <i class="fas fa-chart-line header-icon"></i>
-            <h1>Deriv Dashboard</h1>
+    <!-- status -->
+    <div class="status-bar">
+        <span class="badge">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">connecting</span>
+        </span>
+        <span id="tickCount">ticks: 0</span>
+    </div>
+
+    <!-- price cards -->
+    <div class="price-grid">
+        <div class="price-box">
+            <div class="price-label">last price</div>
+            <div class="price-value" id="lastPrice">—</div>
         </div>
-        <div class="header-right">
-            <span class="status-badge" id="connectionStatus">
-                <i class="fas fa-circle"></i> Disconnected
-            </span>
+        <div class="price-box">
+            <div class="price-label">epoch</div>
+            <div class="price-value" id="epochDisplay" style="font-size:1.2rem;">—</div>
         </div>
-    </header>
+    </div>
 
-    <!-- MAIN -->
-    <main class="app-main">
+    <!-- controls -->
+    <div class="actions">
+        <button class="btn btn-primary" id="connectBtn">▶ Connect</button>
+        <button class="btn btn-outline" id="disconnectBtn">⏹ Disconnect</button>
+        <button class="btn btn-outline" id="clearLogBtn">🧹 Clear log</button>
+    </div>
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar" id="sidebar">
-            <div class="login-card">
-                <h2><i class="fas fa-key"></i> Connect</h2>
-                <p class="login-hint">Enter your Deriv API token</p>
-                <div class="input-group">
-                    <input type="password" id="apiTokenInput" placeholder="Your API token..." />
-                    <button id="loginBtn" class="btn-primary">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </button>
-                </div>
-                <div id="loginError" class="error-message hidden"></div>
-                <div id="userInfo" class="user-info hidden">
-                    <div class="info-row">
-                        <span class="label"><i class="fas fa-user"></i> Login ID</span>
-                        <span class="value" id="loginId">—</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label"><i class="fas fa-wallet"></i> Balance</span>
-                        <span class="value" id="balanceDisplay">—</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label"><i class="fas fa-coins"></i> Currency</span>
-                        <span class="value" id="currencyDisplay">—</span>
-                    </div>
-                </div>
-            </div>
+    <!-- log -->
+    <div class="log-area" id="logContainer">
+        <div class="log-entry"><span class="log-time">──</span><span class="log-msg">🟢 ready</span></div>
+    </div>
+    <div class="footer">public socket · tick stream for R_100</div>
+</div>
 
-            <div class="symbol-selector">
-                <label for="symbolSelect"><i class="fas fa-chart-bar"></i> Symbol</label>
-                <select id="symbolSelect">
-                    <option value="R_10">Volatility 10 (1s)</option>
-                    <option value="R_25" selected>Volatility 25 (1s)</option>
-                    <option value="R_50">Volatility 50 (1s)</option>
-                    <option value="R_75">Volatility 75 (1s)</option>
-                    <option value="R_100">Volatility 100 (1s)</option>
-                </select>
-            </div>
+<script>
+    (function() {
+        'use strict';
 
-            <div class="stats-mini">
-                <div class="stat-item">
-                    <span class="stat-label">Last Price</span>
-                    <span class="stat-value" id="lastPrice">—</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Change</span>
-                    <span class="stat-value" id="priceChange">—</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Ticks</span>
-                    <span class="stat-value" id="tickCount">0</span>
-                </div>
-            </div>
-        </aside>
+        // ----- DOM refs -----
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const tickCountEl = document.getElementById('tickCount');
+        const lastPriceEl = document.getElementById('lastPrice');
+        const epochDisplayEl = document.getElementById('epochDisplay');
+        const logContainer = document.getElementById('logContainer');
+        const symbolDisplay = document.getElementById('symbolDisplay');
 
-        <!-- CONTENT -->
-        <section class="content">
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const clearLogBtn = document.getElementById('clearLogBtn');
 
-            <!-- CHART -->
-            <div class="card chart-card">
-                <div class="card-header">
-                    <h3><i class="fas fa-candlestick-chart"></i> Live Candle Chart</h3>
-                    <span class="badge" id="chartSymbolBadge">R_25</span>
-                </div>
-                <div class="chart-wrapper">
-                    <canvas id="candleChart"></canvas>
-                </div>
-                <div class="chart-controls">
-                    <button class="btn-sm" data-interval="1">1m</button>
-                    <button class="btn-sm active" data-interval="5">5m</button>
-                    <button class="btn-sm" data-interval="15">15m</button>
-                    <button class="btn-sm" data-interval="30">30m</button>
-                    <button class="btn-sm" data-interval="60">1h</button>
-                </div>
-            </div>
+        // ----- state -----
+        let socket = null;               // WebSocket instance
+        let isConnected = false;
+        let tickCounter = 0;
+        let reconnectAttempt = 0;
+        const MAX_LOG_ENTRIES = 40;
 
-            <!-- TICK HISTORY + LAST DIGIT -->
-            <div class="row two-col">
-                <div class="card tick-history-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-list"></i> Tick History</h3>
-                        <span class="badge" id="tickCountBadge">0</span>
-                    </div>
-                    <div class="tick-table-wrap">
-                        <table class="tick-table">
-                            <thead>
-                                <tr><th>Time</th><th>Price</th><th>Digit</th></tr>
-                            </thead>
-                            <tbody id="tickTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
+        // ----- helpers -----
+        function setStatus(connected, msg) {
+            isConnected = connected;
+            statusDot.className = 'dot ' + (connected ? 'connected' : 'disconnected');
+            statusText.textContent = msg || (connected ? 'connected' : 'disconnected');
+        }
 
-                <div class="card last-digit-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-hashtag"></i> Last Digit Distribution</h3>
-                    </div>
-                    <div class="digit-grid" id="digitGrid"></div>
-                    <div class="digit-stats" id="digitStats">
-                        <span>Total: <strong id="digitTotal">0</strong></span>
-                        <span>Most frequent: <strong id="digitMostFreq">—</strong></span>
-                    </div>
-                </div>
-            </div>
+        function updateTickCount() {
+            tickCountEl.textContent = `ticks: ${tickCounter}`;
+        }
 
-            <!-- TRADE HISTORY + OPEN CONTRACTS -->
-            <div class="row two-col">
-                <div class="card trade-history-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-history"></i> Trade History</h3>
-                        <button id="refreshTradesBtn" class="btn-sm"><i class="fas fa-sync"></i></button>
-                    </div>
-                    <div class="trade-table-wrap">
-                        <table class="trade-table">
-                            <thead>
-                                <tr><th>Ref</th><th>Symbol</th><th>Type</th><th>Stake</th><th>P/L</th></tr>
-                            </thead>
-                            <tbody id="tradeTableBody">
-                                <tr><td colspan="5" class="empty-msg">No trades yet</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        function addLog(msg, isError = false) {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-GB', { hour12: false });
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'log-time';
+            timeSpan.textContent = time;
+            const msgSpan = document.createElement('span');
+            msgSpan.className = 'log-msg';
+            msgSpan.textContent = msg;
+            if (isError) {
+                msgSpan.style.color = '#b22234';
+                msgSpan.style.fontWeight = '500';
+            }
+            entry.appendChild(timeSpan);
+            entry.appendChild(msgSpan);
+            logContainer.appendChild(entry);
+            // trim
+            while (logContainer.children.length > MAX_LOG_ENTRIES) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
 
-                <div class="card open-contracts-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-file-contract"></i> Open Contracts</h3>
-                        <span class="badge" id="openContractsBadge">0</span>
-                    </div>
-                    <div class="contract-list" id="contractList">
-                        <div class="empty-msg">No open contracts</div>
-                    </div>
-                </div>
-            </div>
+        function clearLog() {
+            while (logContainer.firstChild) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+            // add placeholder
+            const empty = document.createElement('div');
+            empty.className = 'log-entry';
+            empty.innerHTML = `<span class="log-time">──</span><span class="log-msg">log cleared</span>`;
+            logContainer.appendChild(empty);
+        }
 
-        </section>
-    </main>
+        // ----- process incoming tick -----
+        function handleTickMessage(data) {
+            try {
+                // Deriv tick response: { tick: { ask, bid, epoch, id, pip_size, quote, symbol } }
+                if (data && data.tick) {
+                    const tick = data.tick;
+                    const price = tick.quote;
+                    const epoch = tick.epoch;
+                    const symbol = tick.symbol || 'R_100';
 
-    <!-- FOOTER -->
-    <footer class="app-footer">
-        <p>Deriv Dashboard &bull; Built with <i class="fas fa-heart" style="color:#ef4444;"></i> &bull; WebSocket v3</p>
-        <p id="footerStatus">Ready</p>
-    </footer>
+                    // update UI
+                    if (price !== undefined && price !== null) {
+                        lastPriceEl.textContent = price.toFixed(2);
+                    }
+                    if (epoch !== undefined && epoch !== null) {
+                        epochDisplayEl.textContent = epoch;
+                    }
+                    // symbol (first tick sets symbol)
+                    if (symbol && symbolDisplay) {
+                        symbolDisplay.textContent = symbol;
+                    }
 
-    <script src="script.js"></script>
+                    tickCounter++;
+                    updateTickCount();
+
+                    // log tick (compact)
+                    const logMsg = `tick ${price}  (epoch ${epoch})`;
+                    addLog(logMsg);
+                } else if (data && data.error) {
+                    // error from socket
+                    addLog(`⚠️ error: ${data.error.message || 'unknown'}`, true);
+                } else {
+                    // other message (like ping/pong or subscription ack)
+                    if (data.msg_type === 'tick' || data.msg_type === 'proposal') {
+                        // already handled above
+                    } else if (data.echo_req && data.subscription) {
+                        addLog(`✅ subscribed to ${data.subscription?.symbol || 'tick'}`);
+                    } else {
+                        // ignore pong or other internal
+                        if (data.msg_type !== 'pong') {
+                            addLog(`📩 ${JSON.stringify(data).slice(0, 70)}`);
+                        }
+                    }
+                }
+            } catch (e) {
+                addLog(`⚠️ parse error: ${e.message}`, true);
+            }
+        }
+
+        // ----- open WebSocket connection -----
+        function connectWebSocket() {
+            if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+                addLog('already connected or connecting', false);
+                return;
+            }
+
+            // close any dangling socket
+            if (socket) {
+                try { socket.close(); } catch (_) {}
+                socket = null;
+            }
+
+            const WS_URL = 'wss://ws.derivws.com/websockets/v3?app_id=1089'; // public app_id
+            addLog('🔌 opening socket...');
+
+            try {
+                socket = new WebSocket(WS_URL);
+                socket.binaryType = 'arraybuffer'; // not used but safe
+
+                socket.onopen = function() {
+                    setStatus(true, 'connected');
+                    addLog('✅ socket open, sending subscribe');
+                    // send subscription for R_100 ticks
+                    const subscribeMsg = {
+                        ticks: 'R_100',
+                        subscribe: 1
+                    };
+                    socket.send(JSON.stringify(subscribeMsg));
+                    addLog('📨 subscribe: R_100');
+                };
+
+                socket.onmessage = function(event) {
+                    // handle text or binary (binary not expected)
+                    let rawData;
+                    if (typeof event.data === 'string') {
+                        rawData = event.data;
+                    } else if (event.data instanceof ArrayBuffer) {
+                        // unlikely for tick stream, but decode as utf-8
+                        const decoder = new TextDecoder('utf-8');
+                        rawData = decoder.decode(event.data);
+                    } else {
+                        addLog('⚠️ unknown data type', true);
+                        return;
+                    }
+
+                    try {
+                        const parsed = JSON.parse(rawData);
+                        handleTickMessage(parsed);
+                    } catch (e) {
+                        addLog(`⚠️ invalid JSON: ${rawData.slice(0, 60)}`, true);
+                    }
+                };
+
+                socket.onerror = function(error) {
+                    addLog(`❌ socket error: ${error.message || 'unknown'}`, true);
+                    setStatus(false, 'error');
+                };
+
+                socket.onclose = function(event) {
+                    const wasClean = event.wasClean;
+                    const code = event.code;
+                    const reason = event.reason || 'no reason';
+                    setStatus(false, 'closed');
+                    addLog(`🔒 closed (${code} ${wasClean ? 'clean' : 'unclean'})`, !wasClean);
+                    socket = null;
+                };
+
+            } catch (err) {
+                addLog(`⚠️ connection failed: ${err.message}`, true);
+                setStatus(false, 'failed');
+                socket = null;
+            }
+        }
+
+        // ----- disconnect -----
+        function disconnectWebSocket() {
+            if (socket) {
+                try {
+                    // unsubscribe optional: just close
+                    socket.close(1000, 'user disconnect');
+                } catch (_) {}
+                socket = null;
+                setStatus(false, 'disconnected');
+                addLog('⏹ manually disconnected');
+            } else {
+                addLog('no active connection');
+                setStatus(false, 'idle');
+            }
+        }
+
+        // ----- init UI -----
+        function init() {
+            setStatus(false, 'idle');
+            updateTickCount();
+            lastPriceEl.textContent = '—';
+            epochDisplayEl.textContent = '—';
+            addLog('🟢 ready — press Connect');
+
+            connectBtn.addEventListener('click', function() {
+                connectWebSocket();
+            });
+
+            disconnectBtn.addEventListener('click', function() {
+                disconnectWebSocket();
+            });
+
+            clearLogBtn.addEventListener('click', function() {
+                clearLog();
+            });
+
+            // auto connect on page load (optional)
+            // small delay to let UI settle
+            setTimeout(() => {
+                connectWebSocket();
+            }, 300);
+        }
+
+        init();
+    })();
+</script>
 </body>
 </html>
