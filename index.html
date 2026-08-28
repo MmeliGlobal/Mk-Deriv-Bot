@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deriv · live ticks</title>
+    <title>Deriv · live ticks (public socket)</title>
     <style>
         * {
             margin: 0;
@@ -221,7 +221,7 @@
     <div class="log-area" id="logContainer">
         <div class="log-entry"><span class="log-time">──</span><span class="log-msg">⚡ ready</span></div>
     </div>
-    <div class="footer">tick stream · wss://ws.derivws.com</div>
+    <div class="footer">tick stream · wss://api.derivws.com/trading/v1/options/ws/public</div>
 </div>
 
 <script>
@@ -343,7 +343,8 @@
                 socket = null;
             }
 
-            const WS_URL = 'wss://ws.derivws.com/websockets/v3?app_id=1089';
+            // Use the provided public WebSocket URL
+            const WS_URL = 'wss://api.derivws.com/trading/v1/options/ws/public';
             addLog('🔌 opening socket...');
 
             try {
